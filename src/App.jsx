@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, Target, Rocket, ChevronRight, Award, Megaphone } from 'lucide-react';
+import { 
+  Calendar, Users, Target, Rocket, ChevronRight, Megaphone, 
+  ArrowRight, Sparkles 
+} from 'lucide-react';
+import MemberManagement from './components/MemberManagement';
 import './index.css';
 
-const Navbar = () => {
+const Navbar = ({ currentPage, onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -11,39 +15,110 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (e, target) => {
+    e.preventDefault();
+    if (target === 'members') {
+      onNavigate('members');
+      window.location.hash = 'members';
+    } else {
+      onNavigate('home');
+      window.location.hash = target === 'home' ? '' : target;
+      if (target !== 'home') {
+        setTimeout(() => {
+          const el = document.getElementById(target);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="container nav-container">
-        <a href="#" className="nav-logo gradient-text" style={{ display: 'flex', alignItems: 'center', fontSize: '1.4rem' }}>
+        <a 
+          href="#" 
+          onClick={(e) => handleNavClick(e, 'home')} 
+          className="nav-logo gradient-text" 
+          style={{ display: 'flex', alignItems: 'center', fontSize: '1.4rem', cursor: 'pointer' }}
+        >
           <img src="/gdg-logo.png" alt="GDG Logo" style={{ height: '35px', marginRight: '10px' }} />
           Google Developers Group ITER
         </a>
+
         <div className="nav-links">
-          <a href="#about">About</a>
-          <a href="#notice">Recruitment</a>
-          <a href="#meets">Meets</a>
-          <a href="#gallery">Gallery</a>
-          <a href="#achievements">Achievements</a>
-          <a href="#members">Members</a>
+          <a 
+            href="#about" 
+            onClick={(e) => handleNavClick(e, 'about')}
+            className={currentPage === 'home' ? '' : 'nav-dim'}
+          >
+            About
+          </a>
+          <a 
+            href="#notice" 
+            onClick={(e) => handleNavClick(e, 'notice')}
+            className={currentPage === 'home' ? '' : 'nav-dim'}
+          >
+            Recruitment
+          </a>
+          <a 
+            href="#meets" 
+            onClick={(e) => handleNavClick(e, 'meets')}
+            className={currentPage === 'home' ? '' : 'nav-dim'}
+          >
+            Meets
+          </a>
+          <a 
+            href="#gallery" 
+            onClick={(e) => handleNavClick(e, 'gallery')}
+            className={currentPage === 'home' ? '' : 'nav-dim'}
+          >
+            Gallery
+          </a>
+          <a 
+            href="#achievements" 
+            onClick={(e) => handleNavClick(e, 'achievements')}
+            className={currentPage === 'home' ? '' : 'nav-dim'}
+          >
+            Achievements
+          </a>
+          <a 
+            href="#members" 
+            onClick={(e) => handleNavClick(e, 'members')}
+            className={`nav-member-link ${currentPage === 'members' ? 'nav-active' : ''}`}
+          >
+            <span className="nav-member-indicator"></span>
+            Members
+            <span className="nav-badge-pill">60</span>
+          </a>
         </div>
       </div>
     </nav>
   );
 };
 
-const Hero = () => (
+const Hero = ({ onExploreMembers }) => (
   <section className="hero" id="about">
     <img src="/hero_bg.jpg" alt="Tech Background" className="hero-bg" />
     <div className="container">
-      <h1 className="glow-text-blue">Google Developer Groups</h1>
+      <div className="hero-badge-pill">
+        <Sparkles size={16} color="var(--neon-blue)" />
+        <span>Largest Student Tech Community • 60+ Core Members</span>
+      </div>
+      <h1 className="glow-text-blue" style={{ marginTop: '15px' }}>Google Developer Groups</h1>
       <h2 className="glow-text-purple" style={{ fontSize: '2rem', marginBottom: '20px' }}>Connect. Learn. Grow.</h2>
       <p>
         Welcome to Google Developers Group ITER! We are a community of passionate developers exploring the latest in tech, 
         building innovative projects, and sharing knowledge. Join us in shaping the future.
       </p>
-      <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
         <a href="#join"><button className="btn-primary">Join Community</button></a>
         <a href="#meets"><button className="btn-3d">Upcoming Meets</button></a>
+        <button className="btn-3d btn-glow-blue" onClick={onExploreMembers}>
+          <Users size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
+          Members Directory (60)
+        </button>
       </div>
     </div>
   </section>
@@ -180,30 +255,61 @@ const Achievements = () => (
   </section>
 );
 
-const Members = () => {
-  const membersList = [
-    { name: 'Alex Johnson', role: 'Lead Organizer' },
-    { name: 'Sarah Williams', role: 'Tech Lead' },
-    { name: 'Michael Chen', role: 'Design Lead' },
-    { name: 'Priya Sharma', role: 'Community Manager' },
-    { name: 'David Kim', role: 'Web Developer' },
-    { name: 'Emma Watson', role: 'ML Engineer' },
+const MembersPreview = ({ onExploreMembers }) => {
+  const previewLeaders = [
+    { name: 'Aarav Sharma', role: 'Full Stack Lead', team: 'Tech', branch: 'CSE Core', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80' },
+    { name: 'Arjun Reddy', role: 'Head of Media', team: 'Media', branch: 'CSE Core', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80' },
+    { name: 'Tara D\'Souza', role: 'UI/UX Architect Lead', team: 'Design', branch: 'AIML', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80' },
+    { name: 'Kunal Singhal', role: 'Community President', team: 'PR & Management', branch: 'CSE Core', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80' },
   ];
 
   return (
     <section id="members">
       <div className="container">
-        <h2 className="section-title glow-text-blue">Meet Our Members</h2>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h2 className="section-title glow-text-blue" style={{ marginBottom: '15px' }}>Meet Our Core Leads</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
+            Empowering 60+ dedicated student leaders across Tech, Media, Design, and PR & Management departments at ITER.
+          </p>
+        </div>
+
         <div className="grid">
-          {membersList.map((member, i) => (
-            <div key={i} className="glass-panel" style={{ padding: '20px', textAlign: 'center' }}>
-              <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg, var(--neon-blue), var(--neon-purple))', borderRadius: '50%', margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px var(--neon-purple)' }}>
-                <Users size={32} color="#fff" />
+          {previewLeaders.map((member, i) => (
+            <div key={i} className="glass-panel" style={{ padding: '25px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ 
+                width: '90px', 
+                height: '90px', 
+                borderRadius: '50%', 
+                margin: '0 auto 15px', 
+                overflow: 'hidden',
+                border: '2px solid var(--neon-blue)',
+                boxShadow: '0 0 15px rgba(0, 229, 255, 0.4)'
+              }}>
+                <img src={member.avatar} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '5px' }}>{member.name}</h3>
-              <p style={{ color: 'var(--accent-glow)' }}>{member.role}</p>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '5px' }}>{member.name}</h3>
+              <p style={{ color: 'var(--neon-blue)', fontSize: '0.9rem', marginBottom: '8px' }}>{member.role}</p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', fontSize: '0.8rem' }}>
+                <span className="team-badge" style={{ color: '#00e5ff', background: 'rgba(0, 229, 255, 0.1)', border: '1px solid rgba(0, 229, 255, 0.3)' }}>{member.team}</span>
+                <span className="branch-badge" style={{ color: '#ffb800', background: 'rgba(255, 184, 0, 0.1)', border: '1px solid rgba(255, 184, 0, 0.3)' }}>{member.branch}</span>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* CTA to open full 60 Members Management Page */}
+        <div style={{ textAlign: 'center', marginTop: '50px' }}>
+          <button 
+            className="btn-primary" 
+            style={{ fontSize: '1.15rem', padding: '16px 36px', display: 'inline-flex', alignItems: 'center', gap: '10px' }}
+            onClick={onExploreMembers}
+          >
+            <span>Open Member Management Page (60 Members)</span>
+            <ArrowRight size={20} />
+          </button>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '12px' }}>
+            Full search, team & branch filters (CSE Core, AIML, IOT, CSIT), birthday tracking, and sorting
+          </p>
         </div>
       </div>
     </section>
@@ -218,7 +324,9 @@ const JoinCTA = () => (
       <p style={{ fontSize: '1.3rem', color: 'var(--text-muted)', maxWidth: '700px', margin: '0 auto 40px' }}>
         Please join our community and start your journey of exploring, learning, and building cool things together with amazing people!
       </p>
-      <button className="btn-primary" style={{ fontSize: '1.3rem', padding: '16px 40px' }}>Join the Community <ChevronRight size={24} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '10px' }}/></button>
+      <button className="btn-primary" style={{ fontSize: '1.3rem', padding: '16px 40px' }}>
+        Join the Community <ChevronRight size={24} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '10px' }}/>
+      </button>
     </div>
   </section>
 );
@@ -230,16 +338,49 @@ const Footer = () => (
 );
 
 const App = () => {
+  const [currentPage, setCurrentPage] = useState(() => {
+    return window.location.hash === '#members' ? 'members' : 'home';
+  });
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#members') {
+        setCurrentPage('members');
+      } else {
+        setCurrentPage('home');
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  const navigateTo = (page) => {
+    setCurrentPage(page);
+    if (page === 'members') {
+      window.location.hash = 'members';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.location.hash = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
-      <Navbar />
-      <Hero />
-      <Notice />
-      <Meets />
-      <Gallery />
-      <Achievements />
-      <Members />
-      <JoinCTA />
+      <Navbar currentPage={currentPage} onNavigate={navigateTo} />
+      {currentPage === 'members' ? (
+        <MemberManagement onNavigateHome={() => navigateTo('home')} />
+      ) : (
+        <>
+          <Hero onExploreMembers={() => navigateTo('members')} />
+          <Notice />
+          <Meets />
+          <Gallery />
+          <Achievements />
+          <MembersPreview onExploreMembers={() => navigateTo('members')} />
+          <JoinCTA />
+        </>
+      )}
       <Footer />
     </>
   );
